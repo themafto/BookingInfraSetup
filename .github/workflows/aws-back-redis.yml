@@ -1,0 +1,27 @@
+name: deploy backend_redis to ECR
+
+on:
+  push:
+    paths:
+      - 'backend_redis/**'
+
+jobs:
+  deploy-redis-to-ECR:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3\
+
+      - name: Connect to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: build and push
+        run: |
+          docker build -t backend_redis:latest -f backend_redis/Dockerfile
+          docker tag backend_redis:latest ${{ env.ECR_REPOSITORY_REDIS }}:latest
+          docker push ${{ env.ECR_REPOSITORY_REDIS }}:latest

@@ -7,9 +7,6 @@ on:
     paths:
       - 'frontend/**'
 
-env:
-  APP_INSTANCE_IP: 3.71.186.235
-
 jobs:
   deploy-to-s3:
     runs-on: ubuntu-latest
