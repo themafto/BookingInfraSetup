@@ -1,0 +1,28 @@
+name: CI/CD frontend AWS
+
+on:
+  push:
+    branches:
+      - main  # Trigger on pushes to the 'main' branch
+    paths:
+      - 'frontend/**'
+
+env:
+  APP_INSTANCE_IP: 3.71.186.235
+
+jobs:
+  deploy-to-s3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+      - name: Deploy to S3
+        run: aws s3 frontend/ s3://$AWS_S3_BUCKET/
