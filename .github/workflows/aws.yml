@@ -25,4 +25,4 @@ jobs:
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
       - name: Deploy to S3
-        run: aws s3 frontend/ s3://$AWS_S3_BUCKET/
+        run: aws s3 sync frontend/ s3://$AWS_S3_BUCKET/
