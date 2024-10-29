@@ -13,16 +13,23 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Connect to ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        run: |
+          aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ env.DOCKER_REGISTRY }}
+          
+
       - name: build and push
         run: |
           docker build -t backend_rds:latest -f backend_rds/Dockerfile
+          u
           docker tag backend_rds:latest ${{ env.ECR_REPOSITORY_RDS }}:latest
           docker push ${{ env.ECR_REPOSITORY_RDS }}:latest
 
