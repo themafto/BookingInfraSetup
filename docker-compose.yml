@@ -1,0 +1,46 @@
+services:
+
+  db:
+    image: postgres
+    env_file:
+      - .env
+    environment:
+     - POSTGRES_HOST=${DB_HOST}
+     - POSTGRES_PORT=${DB_PORT}
+     - POSTGRES_DB=${DB_NAME}
+     - POSTGRES_USER=${DB_USER}
+     - POSTGRES_PASSWORD=${DB_PASSWORD}
+
+
+  redis:
+    image: redis
+    env_file:
+      - .env
+
+  backend_rds:
+    build:
+        context: .
+        dockerfile: ./backend_rds/Dockerfile
+    container_name: rds
+    ports:
+      - "8003:8003"
+    depends_on:
+      - db
+    env_file:
+      - .env
+
+  backend_redis:
+    build:
+      context: .
+      dockerfile: ./backend_redis/Dockerfile
+    container_name: redis
+    ports:
+      - "8002:8002"
+    depends_on:
+      - redis
+    env_file:
+      - .env
+
+
+
+
