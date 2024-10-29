@@ -32,7 +32,7 @@ jobs:
 
       - name: build and push
         run: |
-          docker build -t backend_rds:latest -f backend_rds/Dockerfile Dynamic_services_static_front_project/backend_rds
+          docker build -t backend_rds:latest -f backend_rds/Dockerfile /backend_rds/
           docker tag backend_rds:latest ${{ env.ECR_REPOSITORY_RDS }}:latest
           docker push ${{ env.ECR_REPOSITORY_RDS }}:latest
 
