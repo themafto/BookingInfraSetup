@@ -36,14 +36,14 @@ jobs:
         env:
             PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
         run: |
-                mkdir -p ~/.ssh
-                echo "$PRIVATE_KEY" | tr -d '\r' > ~/.ssh/ec2_private_key.pem
-                chmod 600 ~/.ssh/ec2_private_key.pem
+          mkdir -p ~/.ssh
+          echo "$PRIVATE_KEY" | tr -d '\r' > ~/.ssh/ec2_private_key.pem
+          chmod 600 ~/.ssh/ec2_private_key.pem
 
       - name: Connect to EC2 instance
         run: |
-            ssh -i ~/.ssh/ec2_private_key.pem ec2-user@${{ secrets.ELASTIC_IP }} << EOF
-            aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
-            docker pull ${{ secrets.ECR_RDS }}:latest
-            docker-compose up -d
+          ssh -i ~/.ssh/ec2_private_key.pem ec2-user@${{ secrets.ELASTIC_IP }} << EOF
+          aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+          docker pull ${{ secrets.ECR_RDS }}:latest
+          docker-compose up -d
           EOF
