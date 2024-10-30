@@ -34,3 +34,25 @@ jobs:
           docker build -t backend_redis:latest -f backend_redis/Dockerfile backend_redis
           docker tag backend_redis:latest ${{ secrets.ECR_REDIS }}:latest
           docker push ${{ secrets.ECR_REDIS }}:latest
+
+      - name: Install SSH client
+        run: sudo apt-get update && sudo apt-get install -y openssh-client
+
+      - name: Configure SSH key
+        env:
+          PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$PRIVATE_KEY" | tr -d '\r' > ~/.ssh/ec2_private_key.pem
+          chmod 600 ~/.ssh/ec2_private_key.pem
+
+      - name: Add host key to known_hosts
+        run: ssh-keyscan ${{ secrets.ELASTIC_IP }} >> ~/.ssh/known_hosts
+
+      - name: Connect to EC2 and pull
+        run: |
+          ssh -o ConnectTimeout=10 -i ~/.ssh/ec2_private_key.pem ec2-user@${{ secrets.ELASTIC_IP }} << EOF
+          aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
+          docker pull ${{ secrets.ECR_REDIS }}:latest
+          docker-compose up -d
+          EOF
