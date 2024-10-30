@@ -43,10 +43,14 @@ jobs:
       - name: Add host key to known_hosts
         run: ssh-keyscan ${{ secrets.ELASTIC_IP }} >> ~/.ssh/known_hosts
 
-      - name: Connect to EC2 instance
+      - name: Connect to EC2 and pull
+        env:
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          ECR_RDS: ${{ secrets.ECR_RDS }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
         run: |
-          ssh -i ~/.ssh/ec2_private_key.pem ec2-user@${{ secrets.ELASTIC_IP }} << EOF
-          aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
-          docker pull ${{ secrets.ECR_RDS }}:latest
+          ssh -o ConnectTimeout=10 -i ~/.ssh/ec2_private_key.pem ec2-user@${{ secrets.ELASTIC_IP }} << EOF
+          $(aws ecr get-login-password --region $AWS_DEFAULT_REGION) | docker login --username AWS --password-stdin $ECR_REGISTRY
+          docker pull $ECR_RDS:latest
           docker-compose up -d
           EOF
