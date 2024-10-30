@@ -50,7 +50,7 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
         run: |
           ssh -o ConnectTimeout=10 -i ~/.ssh/ec2_private_key.pem ec2-user@${{ secrets.ELASTIC_IP }} << EOF
-          $(aws ecr get-login-password --region $AWS_DEFAULT_REGION) | docker login --username AWS --password-stdin $ECR_REGISTRY
+          aws ecr get-login-password --region $AWS_DEFAULT_REGION --password | docker login --username AWS --password-stdin $ECR_REGISTRY
           docker pull $ECR_RDS:latest
           docker-compose up -d
           EOF
